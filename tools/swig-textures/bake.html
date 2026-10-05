@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Bake Swig cream textures</title>
+<p>Select the two SVG files in this folder to regenerate the cream WebP assets. Save them in public/.</p>
+<input type="file" accept="image/svg+xml" multiple>
+<div id="results"></div>
+<script>
+document.querySelector('input').onchange = async event => {
+  for (const file of event.target.files) {
+    const url = URL.createObjectURL(file), image = new Image();
+    try {
+      image.src = url; await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = 520; canvas.height = 1090;
+      canvas.getContext('2d').drawImage(image, 0, 0, 520, 1090);
+      const link = document.createElement('a');
+      link.download = file.name.replace(/\.svg$/, '.webp');
+      link.href = canvas.toDataURL('image/webp', .93);
+      link.textContent = `Download ${link.download}`;
+      const preview = new Image(); preview.src = link.href; preview.width = 260;
+      const row = document.createElement('div'); row.append(preview, link);
+      document.querySelector('#results').append(row);
+    } finally { URL.revokeObjectURL(url); }
+  }
+};
+</script>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1090" viewBox="0 0 866 1816"><defs><linearGradient id="swig-cream-color" gradientUnits="userSpaceOnUse" x1="260" y1="650" x2="550" y2="1440">
+                  <stop stop-color="#F1D3A0" stop-opacity=".7" /><stop offset=".45" stop-color="#EAC08C" stop-opacity=".44" />
+                  <stop offset="1" stop-color="#C99A67" stop-opacity="0" />
+                </linearGradient>
+                <filter id="swig-cream-soft" x="-25%" y="-15%" width="150%" height="130%" color-interpolation-filters="sRGB">
+                  <feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="2" seed="12" result="current" />
+                  <feDisplacementMap in="SourceGraphic" in2="current" scale="85" xChannelSelector="R" yChannelSelector="G" />
+                  <feGaussianBlur stdDeviation="18" />
+                </filter>
+                <filter id="swig-cream-fine" x="-25%" y="-15%" width="150%" height="130%" color-interpolation-filters="sRGB">
+                  <feTurbulence type="fractalNoise" baseFrequency=".012 .02" numOctaves="2" seed="8" result="current" />
+                  <feDisplacementMap in="SourceGraphic" in2="current" scale="55" xChannelSelector="R" yChannelSelector="G" />
+                  <feGaussianBlur stdDeviation="7" />
+                </filter>
+                <radialGradient id="swig-cream-haze">
+                  <stop stop-color="#EFCD9B" stop-opacity=".38" /><stop offset=".45" stop-color="#E7BE87" stop-opacity=".21" />
+                  <stop offset="1" stop-color="#DAB07B" stop-opacity="0" />
+                </radialGradient>
+                </defs><g fill="url(#swig-cream-color)"><g class="cream-cloud cream-cloud-back" filter="url(#swig-cream-soft)">
+                    <g fill="url(#swig-cream-haze)">
+                      <ellipse cx="352" cy="704" rx="240" ry="134" />
+                      <ellipse cx="517" cy="853" rx="166" ry="146" />
+                      <ellipse cx="377" cy="1030" rx="205" ry="161" />
+                      <ellipse cx="496" cy="1234" rx="190" ry="169" />
+                    </g>
+                    <path class="cream-plume" d="M202 580C368 660 608 613 576 802S228 906 276 1109S620 1226 525 1460C606 1262 288 1192 357 1081S695 926 644 764S358 670 300 560Z" />
+                    <path opacity=".65" d="M562 572C486 704 435 741 496 860S673 977 579 1135S356 1340 394 1569C299 1326 529 1225 525 1120S411 994 416 860S483 689 474 566Z" />
+                  </g>
+                  </g></svg>

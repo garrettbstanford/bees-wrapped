@@ -1,0 +1,238 @@
+:root{
+  --gold:#E9B949;
+  --black:#000;
+  --white:#fff;
+  --scrim:rgba(0,0,0,.28);
+  --dim:rgba(255,255,255,.4);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --scrim:rgba(0,0,0,.28); } }
+:root[data-theme="dark"]{ --scrim:rgba(0,0,0,.28); }
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--black);color:var(--white);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+     display:grid;place-items:center;overflow:hidden;-webkit-tap-highlight-color:transparent}
+
+/* Phone-shaped frame on desktop, full screen on phones */
+.frame{position:relative;height:100%;max-height:900px;aspect-ratio:9/16;max-width:100%;overflow:hidden;
+       background:var(--black);user-select:none;touch-action:none;border-radius:18px}
+@media (max-width:560px){.frame{width:100%;aspect-ratio:auto;max-height:none;border-radius:0}}
+
+/* ---------- Slides ---------- */
+.slide{position:absolute;inset:0;overflow:hidden;transform:translateY(100%);
+       visibility:hidden;transition:transform .6s cubic-bezier(.7,0,.2,1),visibility 0s .6s;display:grid;place-items:center}
+.slide.before{transform:translateY(-100%)}
+.slide.active{transform:translateY(0);visibility:visible;transition-delay:0s}
+.slide:not(.active) .sweep,.slide:not(.active) .word>span,
+.slide:not(.active) .ball-float,.slide:not(.active) .ball-logo,.slide:not(.active) .card{will-change:auto}
+.frame.snap .slide{transition:none}   /* app.js: jumping back to the start */
+.slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bg{position:absolute;inset:0}
+.bg *{animation-play-state:paused}
+.slide.active .bg *{animation-play-state:running}
+.frame.paused .slide .bg *{animation-play-state:paused}
+.page-hidden *,.page-hidden *::before,.page-hidden *::after{animation-play-state:paused!important}
+
+.frame{container-type:size}
+
+/* Intro words on the first slide */
+.intro-words{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.sweep{position:absolute;left:100%;top:50%;transform:translateY(-50%);font-weight:900;font-size:46cqh;
+       line-height:1;letter-spacing:-.04em;white-space:nowrap;color:var(--white);will-change:transform}
+.word{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.word>span{display:block;font-weight:900;line-height:.9;letter-spacing:-.045em;color:var(--white);will-change:transform}
+.hey>span,.name>span{font-size:16cqw}
+
+/* While the intro plays: black screen, no UI */
+.frame.intro .top,.frame.intro .progress,.frame.intro .bottom>:not(#mute){visibility:hidden}   /* only the mute button stays up through the intro */
+.frame.intro .word>span{opacity:0;color:var(--gold)}
+
+/* Intro, part two: the batter clip, then the baseball. All hidden until app.js animates them in. */
+.greeting{position:absolute;inset:0}
+/* The batter clip, 9:16 at full height (the player is framed small inside it). The impact is drawn
+   on top: a starburst at the point where ball meets bat, and a white flash over everything. */
+.intro-hit{position:absolute;top:0;left:calc(50% - 28.125cqh);z-index:2;height:100%;aspect-ratio:9/16;
+           transform-origin:73.9% 65.9%;opacity:0}
+.hit-burst{position:absolute;left:73.9%;top:65.9%;width:78%;aspect-ratio:1;translate:-50% -50%;overflow:visible}
+.hit-burst g{opacity:0}
+.hit-burst .gold{fill:var(--gold)}
+.hit-burst .white{fill:var(--white)}
+.intro-flash{position:absolute;inset:0;z-index:3;background:var(--white);opacity:0}
+.intro-ball{position:absolute;left:50%;top:47%;z-index:2;width:min(68cqw,40cqh);aspect-ratio:1;translate:-50% -50%;opacity:0}
+.intro-ball svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ball-float{position:absolute;inset:0;will-change:transform}   /* bobs while the ball flies; its own layer from the start, so the bob starting can't stutter */
+.ball-logo{position:absolute;left:50%;top:50%;width:60%;aspect-ratio:1;translate:-50% -50%;will-change:transform,opacity}   /* rides the ball, doesn't spin */
+.intro-title{position:absolute;left:0;right:0;bottom:calc(53% + min(34cqw,20cqh) + 3cqh);z-index:2;margin:0;padding:0 8%;
+             text-align:center;font-weight:900;font-size:min(12.5cqw,7.2cqh);line-height:.9;letter-spacing:-.045em;opacity:0}
+.intro-title span{display:block;color:var(--gold)}
+/* Flight: speed lines behind everything (drawn by app.js, following the camera), and streaks off the back of the ball */
+.sky-lines{position:absolute;inset:0;z-index:1;width:100%;height:100%;opacity:0;pointer-events:none}
+.ball-trail{position:absolute;top:0;bottom:0;right:50%;width:120%;opacity:0;pointer-events:none}
+.ball-trail i{position:absolute;right:0;top:var(--y);width:var(--w);height:2.2%;border-radius:9px;
+              background:linear-gradient(90deg,transparent,var(--white) 70%);transform-origin:right;
+              animation:trail .5s cubic-bezier(.3,.6,.4,1) var(--dl) infinite}   /* solid by the ball, tapering off behind */
+.ball-trail i:nth-child(even){background:linear-gradient(90deg,transparent,var(--gold) 70%)}
+@keyframes trail{0%{transform:translateX(0) scaleX(.2);opacity:0}20%{opacity:1}100%{transform:translateX(-35%) scaleX(.75);opacity:0}}
+.frame.paused .ball-trail i{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){ .sky-lines,.ball-trail{display:none} }
+.ball-seams{transform-box:fill-box;transform-origin:center}   /* spins about the ball's center */
+.ball-seams .seam{fill:none;stroke:#E6DCC7;stroke-width:1}
+.ball-seams .stitch{fill:none;stroke:var(--gold);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.intro-words{z-index:4}
+/* Bees darting around behind "Hey, there" (app.js flies them); a quick two-step jitter is their wing buzz */
+.intro-bees{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none}
+.intro-bee{position:absolute;left:50%;top:50%;width:calc(17cqw * var(--s,1));opacity:0}
+.intro-bee img{display:block;width:100%;height:auto}
+.frame.intro .intro-bee img{animation:bee-buzz 70ms steps(1,end) infinite alternate}
+.frame.paused .intro-bee img{animation-play-state:paused}
+@keyframes bee-buzz{to{transform:translate(1px,-1.2px) rotate(2.5deg)}}
+@media (prefers-reduced-motion:reduce){ .intro-bees{display:none} }
+
+/* "Scroll down to rewind" cue at the end of the intro (first run only): gold wide caps, like the
+   start screen's "2026 Season Wrapped" */
+.cue>span{display:flex;flex-direction:column;align-items:center;gap:12px;line-height:1.2;color:var(--gold);opacity:0}
+.cue-text{font-size:min(8cqw,2.6rem);font-weight:800;font-stretch:112%;line-height:1.05;letter-spacing:.11em;margin-right:-.11em;
+          text-align:center;text-transform:uppercase;white-space:nowrap}   /* margin offsets the trailing spacing */
+.cue svg{width:60px;height:60px;color:var(--gold);animation:nudge 1.4s ease-in-out infinite}
+.frame.paused .cue svg{animation-play-state:paused}
+@keyframes nudge{50%{transform:translateY(10px)}}
+
+/* Slides 2+ are styled in slides.css */
+
+/* ---------- Chrome ---------- */
+.top,.bottom{position:absolute;left:0;right:0;z-index:5;display:flex;align-items:center;padding:16px 18px;pointer-events:none}
+.top{top:0;justify-content:space-between}
+.bottom{bottom:0;justify-content:flex-end;gap:6px}
+.logo{color:var(--gold);transition:color .3s}
+.logo .wordmark{width:142px;background:currentColor}
+.btn{pointer-events:auto;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;
+     background:transparent;color:var(--white);cursor:pointer;transition:color .3s,background .2s}
+.btn:focus-visible,.seg:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn svg{width:24px;height:24px}
+/* the pause button shows whichever action it will do, following the story's paused state */
+#pause .ic-play,.frame.paused #pause .ic-pause{display:none}
+.frame.paused #pause .ic-play{display:inline}
+
+.progress{position:absolute;right:10px;top:50%;translate:0 -50%;z-index:5;display:flex;flex-direction:column;align-items:center;gap:8px}
+.seg{position:relative;width:4px;height:4px;padding:0;border:0;border-radius:4px;background:var(--dim);cursor:pointer;
+     overflow:hidden;transition:height .35s cubic-bezier(.7,0,.2,1),background .3s}
+.seg::before{content:"";position:absolute;inset:-8px -10px}
+.seg.done{background:var(--white)}
+.seg.current{height:46px}
+.seg .fill{position:absolute;left:0;right:0;top:0;height:100%;background:var(--white);transform-origin:top;transform:scaleY(0)}
+
+.frame.light .logo{color:var(--black)}
+.frame.light .btn{color:var(--black)}
+.frame.light .seg{background:rgba(0,0,0,.25)}
+.frame.light .seg.done,.frame.light .seg .fill{background:var(--black)}
+
+.pause-glyph{position:absolute;left:50%;top:50%;z-index:6;width:76px;height:76px;margin:-38px;border-radius:50%;
+             background:rgba(0,0,0,.55);display:grid;place-items:center;opacity:0;scale:.8;pointer-events:none;
+             transition:opacity .2s,scale .2s}
+.frame.paused .pause-glyph{opacity:1;scale:1}
+.pause-glyph svg{width:30px;height:30px;color:var(--white)}
+
+/* "Share your story here!" bubble pointing at the share button (app.js shows it once, on the games slide).
+   The share button's center sits 140px in from the right edge (padding 18 + two 44px buttons and gaps + half of
+   its own 44px); the bubble's tail lines up with it. */
+.share-tip{position:absolute;right:112px;bottom:calc(100% - 6px);padding:.6em .95em;border-radius:14px;background:var(--white);
+           color:#17130E;font-weight:800;font-size:.9rem;line-height:1.1;white-space:nowrap;opacity:0;pointer-events:none;
+           box-shadow:0 6px 18px rgba(0,0,0,.22);transform-origin:calc(100% - 28px) calc(100% + 7px)}
+.share-tip::after{content:"";position:absolute;right:22px;top:100%;border:6px solid transparent;border-top:7px solid var(--white);border-bottom:0}
+/* always one line: sized to its text (not squeezed to half the frame by left:50%), never wrapping */
+.toast{position:absolute;left:50%;bottom:76px;translate:-50% 12px;z-index:7;background:var(--white);color:var(--black);
+       width:max-content;max-width:calc(100% - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+       font-weight:700;font-size:.9rem;padding:.6rem 1rem;border-radius:999px;opacity:0;transition:opacity .2s,translate .2s;pointer-events:none}
+.toast.show{opacity:1;translate:-50% 0}
+
+/* X in a white circle */
+.btn.close{width:36px;height:36px;background:var(--white);color:var(--black);margin-right:4px}
+/* A shared link: a pill where the close button was, and only the share button below (the story controls go) */
+.shared-pill{display:none;align-items:center;padding:.5em .9em;border-radius:999px;white-space:nowrap;
+             font-weight:700;font-size:.74rem;line-height:1;letter-spacing:.01em;color:#fff;
+             background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.22);
+             -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:pill-in .5s cubic-bezier(.2,.8,.2,1) .3s both}
+.frame.light .shared-pill{color:#17130E;background:rgba(255,255,255,.72);border-color:rgba(23,19,14,.12)}
+.frame.shared .shared-pill{display:inline-flex}
+.frame.shared #close,.frame.shared #mute,.frame.shared #pause{display:none}
+@keyframes pill-in{from{opacity:0;transform:translateY(-8px)}}
+.btn.close svg{width:16px;height:16px}
+.frame.light .btn.close{background:var(--black);color:var(--white)}
+
+/* Start screen */
+.picker{position:absolute;inset:0;z-index:8;background:var(--black);display:flex;flex-direction:column;
+        align-items:center;justify-content:center;padding:0 10%;text-align:center;transition:opacity .6s ease,visibility .6s}
+.frame:not(.is-picking) .picker{opacity:0;visibility:hidden}
+.frame:not(.is-picking) .choice::before,.frame:not(.is-picking) .choice::after{animation:none}
+.comb-bg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.picker>*:not(.comb-bg){position:relative;z-index:1}
+/* Wordmark PNG used as a stencil, so CSS sets its color */
+.wordmark{display:block;width:min(100%,380px);aspect-ratio:1563/356;background:var(--gold);
+          -webkit-mask:url("bees-wordmark.png") center/contain no-repeat;mask:url("bees-wordmark.png") center/contain no-repeat}
+/* Title: the final slide's sign-off lockup (wordmark over "2026 Season Wrapped"), at title size */
+.picker .title{display:flex;flex-direction:column;align-items:center;gap:1.6cqh;width:100%;margin:auto 0 0}
+.title-sub{font-stretch:125%;font-weight:700;font-size:min(3.7cqw,18px);line-height:1.25;letter-spacing:.24em;
+           margin-right:-.24em;text-transform:uppercase;color:rgba(244,234,213,.85)}   /* margin offsets the trailing spacing */
+.choices{display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px;margin:auto 0 28px}
+.choice{border:2px solid var(--gold);border-radius:999px;background:transparent;color:var(--white);
+        font:700 1.15rem "Archivo",sans-serif;padding:1rem;cursor:pointer;transition:background .2s,color .2s}
+/* Start button: drifting multi-tone stroke + breathing inner glow.
+   Breathing uses filter, so opacity stays free for the hover fade-out. */
+@property --stroke-angle{syntax:'<angle>';inherits:false;initial-value:0deg}
+.choice{position:relative;isolation:isolate;border-color:rgba(233,185,73,.35)}
+.choice::before,.choice::after{content:"";position:absolute;border-radius:inherit;pointer-events:none;
+  transition:opacity .4s ease}
+.choice::before{inset:-2px;padding:2px;
+  background:conic-gradient(from var(--stroke-angle),
+    #B9832A 0deg,#E9B949 50deg,#FFF4D2 95deg,#E9B949 140deg,#C9932B 190deg,
+    #F5D47E 240deg,#FFFBEA 280deg,#E9B949 320deg,#B9832A 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:stroke-spin 7s linear infinite,stroke-breathe 3.3s ease-in-out infinite}
+.choice::after{inset:0;z-index:-1;animation:inner-glow 4.2s ease-in-out infinite}
+@keyframes stroke-spin{to{--stroke-angle:360deg}}
+@keyframes stroke-breathe{0%,100%{filter:opacity(.55)}35%{filter:opacity(1)}60%{filter:opacity(.75)}80%{filter:opacity(.95)}}
+@keyframes inner-glow{
+  0%,100%{box-shadow:inset 0 0 6px rgba(185,131,42,.18)}
+  30%{box-shadow:inset 0 0 20px rgba(233,185,73,.42)}
+  55%{box-shadow:inset 0 0 12px rgba(255,236,180,.28)}
+  78%{box-shadow:inset 0 0 24px rgba(245,212,126,.4)}
+}
+@media (hover:hover){ .choice:hover::before,.choice:hover::after{opacity:0} }
+@media (prefers-reduced-motion:reduce){
+  .choice::after{animation:none;box-shadow:inset 0 0 14px rgba(233,185,73,.3)}
+  .choice::before{animation:none;filter:opacity(.9)}
+}
+.choice{display:inline-flex;align-items:center;justify-content:center;gap:.5em}
+.choice .arrow{width:1.05em;height:1.05em;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.choice:focus-visible{outline:2px solid var(--white);outline-offset:3px}
+
+/* Press feedback: quick squeeze on press, springy release */
+.btn,.choice{transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .4s ease,background .3s ease,color .3s ease}
+.btn:active{transform:scale(.8);opacity:.5;transition:transform .15s ease-out,opacity .15s ease-out,background .15s ease-out,color .15s ease-out}
+.btn:not(.close):active{background:rgba(255,255,255,.18)}
+.frame.light .btn:not(.close):active{background:rgba(0,0,0,.1)}
+.btn.close:active{background:var(--gold);color:var(--black)}
+.choice:active{transform:scale(.92);opacity:.5;background:var(--gold);color:var(--black);transition:transform .15s ease-out,opacity .15s ease-out,background .15s ease-out,color .15s ease-out}
+.choice:active .arrow{transform:translateX(6px)}
+.seg{transition:height .35s cubic-bezier(.7,0,.2,1),background .3s,transform .4s cubic-bezier(.2,.8,.2,1),opacity .4s ease}
+.seg:active{transform:scale(1.8);opacity:.5;transition:height .35s cubic-bezier(.7,0,.2,1),transform .15s ease-out,opacity .15s ease-out}
+@media (hover:hover){
+  .btn:not(.close):hover{background:rgba(255,255,255,.12)}
+  .frame.light .btn:not(.close):hover{background:rgba(0,0,0,.08)}
+  .btn.close:hover{background:var(--gold);color:var(--black)}
+  .choice:hover{background:var(--gold);color:var(--black)}
+  .choice:hover .arrow{transform:translateX(3px)}
+}
+@media (prefers-reduced-motion:reduce){ .btn:active,.choice:active,.seg:active{transform:none} }
+.legal{padding:0 0 22px;font-size:.68rem;line-height:1.5;
+       color:rgba(255,255,255,.55);text-align:center}
+.legal p{margin:0 0 .5em}
+.legal strong{color:var(--white);font-weight:700}
+
+@media (prefers-reduced-motion:reduce){
+  .slide{transition:none}
+  .bg *{animation-duration:60s!important}
+}

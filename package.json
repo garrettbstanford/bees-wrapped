@@ -1,0 +1,16 @@
+{
+  "name": "bees-wrapped",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Salt Lake Bees Wrapped: internal proof of concept",
+  "scripts": {
+    "dev": "node server.js",
+    "dev:lan": "node server.js --lan",
+    "deploy": "node tools/deploy.mjs",
+    "configure:access": "node tools/configure-access.mjs",
+    "test": "node --test tools/access.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

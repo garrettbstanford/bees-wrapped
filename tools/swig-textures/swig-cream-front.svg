@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1090" viewBox="0 0 866 1816"><defs><linearGradient id="swig-cream-color" gradientUnits="userSpaceOnUse" x1="260" y1="650" x2="550" y2="1440">
+                  <stop stop-color="#F1D3A0" stop-opacity=".7" /><stop offset=".45" stop-color="#EAC08C" stop-opacity=".44" />
+                  <stop offset="1" stop-color="#C99A67" stop-opacity="0" />
+                </linearGradient>
+                <filter id="swig-cream-soft" x="-25%" y="-15%" width="150%" height="130%" color-interpolation-filters="sRGB">
+                  <feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="2" seed="12" result="current" />
+                  <feDisplacementMap in="SourceGraphic" in2="current" scale="85" xChannelSelector="R" yChannelSelector="G" />
+                  <feGaussianBlur stdDeviation="18" />
+                </filter>
+                <filter id="swig-cream-fine" x="-25%" y="-15%" width="150%" height="130%" color-interpolation-filters="sRGB">
+                  <feTurbulence type="fractalNoise" baseFrequency=".012 .02" numOctaves="2" seed="8" result="current" />
+                  <feDisplacementMap in="SourceGraphic" in2="current" scale="55" xChannelSelector="R" yChannelSelector="G" />
+                  <feGaussianBlur stdDeviation="7" />
+                </filter>
+                <radialGradient id="swig-cream-haze">
+                  <stop stop-color="#EFCD9B" stop-opacity=".38" /><stop offset=".45" stop-color="#E7BE87" stop-opacity=".21" />
+                  <stop offset="1" stop-color="#DAB07B" stop-opacity="0" />
+                </radialGradient>
+                </defs><g fill="url(#swig-cream-color)"><g class="cream-cloud cream-cloud-front" filter="url(#swig-cream-fine)">
+                    <path d="M235 658C224 804 487 847 482 969S254 1122 338 1298C282 1113 545 1114 523 964S269 797 273 651Z" />
+                    <path opacity=".64" d="M652 665C676 838 332 932 372 1063S615 1256 517 1459C660 1267 431 1166 424 1047S720 839 687 647Z" />
+                    <path opacity=".5" d="M312 710C345 813 268 856 305 953S434 1042 419 1150C465 1033 338 1004 343 938S390 803 356 702Z" />
+                  </g>
+                </g></svg>
