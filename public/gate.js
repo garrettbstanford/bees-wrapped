@@ -5,6 +5,23 @@
   const submit = form.querySelector('.enter');
   const label = submit.querySelector('span');
   const message = document.getElementById('form-message');
+  // Only fixed destinations are allowed; the tote flow never shows a page chooser.
+  const destination = new URLSearchParams(location.search).get('site') === 'tote'
+    ? 'https://totebag.builtbyaether.com/' : 'https://bees.builtbyaether.com/';
+
+  function enterPage() {
+    password.value = '';
+    location.replace(destination);
+  }
+
+  async function hasSession() {
+    const response = await fetch('/__session', {
+      credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(15000)
+    });
+    return response.ok && (await response.json()).ok === true;
+  }
+  // A previous login also works here, without revealing the other experience.
+  hasSession().then(active => { if (active) enterPage(); }).catch(() => {});
 
   reveal.addEventListener('click', () => {
     const show = password.type === 'password';
@@ -31,14 +48,16 @@
         signal: AbortSignal.timeout(15000)
       });
       if (response.status === 401) {
-        message.textContent = 'That password isn’t quite right. Please try again.';
+        message.textContent = 'Incorrect password. Try again.';
         password.setAttribute('aria-invalid', 'true');
         password.focus();
         password.select();
       } else if (response.ok && (await response.json()).ok === true) {
-        password.value = '';
-        window.location.replace('/');
-        return;
+        if (await hasSession()) {
+          enterPage();
+          return;
+        }
+        message.textContent = 'Enable cookies in your browser, then try again.';
       } else {
         throw new Error('Could not sign in');
       }
@@ -46,6 +65,6 @@
       message.textContent = 'We couldn’t connect. Please try again in a moment.';
     }
     submit.disabled = false;
-    label.textContent = 'View the proof of concept';
+    label.textContent = 'Continue';
   });
 })();

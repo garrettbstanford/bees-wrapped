@@ -232,8 +232,6 @@
         [recap[2] || '62', 'Home runs'],
         [value('.s-numbers .board li.gold .wheel', '17'), 'Bees wins'],
       ];
-      const mvp = (frame.querySelector('.s-mvp')?.getAttribute('aria-label') || 'Your MVP: Niko Kavadas').split(': ').pop();
-      const fan = 'The ' + (frame.querySelector('.pn-word')?.dataset.word || 'Regulars');
 
       // text helpers: wide-tracked caps (drawn letter by letter, since canvas letter-spacing isn't everywhere)
       // and condensed display type that shrinks to fit
@@ -251,41 +249,37 @@
         g.fillText(text, x, y);
       }
 
-      // background: near-black, a gold glow up top, a fine gold frame
-      g.fillStyle = '#0A0806'; g.fillRect(0, 0, W, H);
-      const glow = g.createRadialGradient(W / 2, 560, 0, W / 2, 560, 900);
-      glow.addColorStop(0, 'rgba(233,185,73,.30)'); glow.addColorStop(1, 'rgba(233,185,73,0)');
-      g.fillStyle = glow; g.fillRect(0, 0, W, H);
-      g.strokeStyle = 'rgba(233,185,73,.55)'; g.lineWidth = 3;
-      g.beginPath(); g.roundRect(48, 48, W - 96, H - 96, 40); g.stroke();
+      // background: plain black (flat, so the PNG stays small)
+      g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+
+      // One column, centered both ways: the wordmark, "2026 Season Wrapped", the logo, the four stats.
+      // CAP is the stat numbers' cap height, ROW the step from one stat row to the next, STATS the block's height.
+      const mw = 760, mh = Math.round(mw * wordmark.height / wordmark.width);
+      const LOGO = 440, CAP = 108, ROW = 250, STATS = ROW + CAP + 48;
+      let y = Math.round((H - (mh + 74 + 90 + LOGO + 110 + STATS)) / 2);
 
       // the wordmark, tinted gold (the PNG is black on clear)
-      const mw = 760, mh = mw * wordmark.height / wordmark.width, tint = document.createElement('canvas');
+      const tint = document.createElement('canvas');
       tint.width = mw; tint.height = mh;
       const t = tint.getContext('2d');
       t.drawImage(wordmark, 0, 0, mw, mh); t.globalCompositeOperation = 'source-in'; t.fillStyle = GOLD; t.fillRect(0, 0, mw, mh);
-      g.drawImage(tint, (W - mw) / 2, 150);
-      tracked('2026 Season Wrapped', W / 2, 150 + mh + 74, 40, CREAM);
+      g.drawImage(tint, (W - mw) / 2, y);
+      y += mh + 74;
+      tracked('2026 Season Wrapped', W / 2, y, 40, CREAM);
+      y += 90;
 
-      // the Bees logo, with a soft halo
-      g.save(); g.shadowColor = 'rgba(233,185,73,.45)'; g.shadowBlur = 80;
-      g.drawImage(logo, W / 2 - 220, 470, 440, 440); g.restore();
+      // the Bees logo
+      g.drawImage(logo, (W - LOGO) / 2, y, LOGO, LOGO);
+      y += LOGO + 110;
 
-      // the four stats in a panel
-      g.fillStyle = 'rgba(255,255,255,.05)'; g.strokeStyle = 'rgba(233,185,73,.28)'; g.lineWidth = 2;
-      g.beginPath(); g.roundRect(110, 990, W - 220, 470, 36); g.fill(); g.stroke();
-      g.fillStyle = 'rgba(233,185,73,.22)'; g.fillRect(W / 2 - 1, 1030, 2, 390); g.fillRect(150, 1224, W - 300, 2);
+      // the four stats, two by two, split by hairlines
+      g.fillStyle = 'rgba(233,185,73,.22)';
+      g.fillRect(W / 2 - 1, y - 12, 2, STATS + 24); g.fillRect(W / 2 - 390, y + STATS / 2 - 1, 780, 2);
       stats.forEach(([n, label], i) => {
-        const x = W / 2 + (i % 2 ? 215 : -215), y = 1030 + (i > 1 ? 215 : 0);
-        display(n, x, y + 140, 150, GOLD, 380);
-        tracked(label, x, y + 186, 30, CREAM, 700, .22);
+        const x = W / 2 + (i % 2 ? 215 : -215), top = y + (i > 1 ? ROW : 0);
+        display(n, x, top + CAP, 150, GOLD, 380);
+        tracked(label, x, top + CAP + 48, 30, CREAM, 700, .22);
       });
-
-      // MVP and fan type
-      tracked('MVP', W / 2, 1560, 30, GOLD, 800, .4);
-      display(mvp.toUpperCase(), W / 2, 1650, 96, CREAM, W - 240);
-      tracked('Fan type', W / 2, 1730, 30, GOLD, 800, .4);
-      display(fan.toUpperCase(), W / 2, 1812, 82, CREAM, W - 240);
 
       const blob = await new Promise(ok => c.toBlob(ok, 'image/png'));
       return new File([blob], 'bees-wrapped-2026.png', { type: 'image/png' });

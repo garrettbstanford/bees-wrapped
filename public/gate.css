@@ -1,5 +1,6 @@
 :root{color-scheme:dark;--gold:#E9B949;--cream:#F4EAD5;font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;background:#000;color:#fff}
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{min-height:100%;margin:0}
 body{min-height:100svh;display:grid;place-items:center;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent}
 .gate{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;width:min(100%,506px);min-height:min(900px,100svh);overflow:hidden;border-radius:18px;padding:clamp(38px,7svh,72px) 10% 28px;padding-inline:clamp(26px,5vw,50px);background:#050403;text-align:center}
@@ -10,7 +11,7 @@ body{min-height:100svh;display:grid;place-items:center;padding:env(safe-area-ins
 .eyebrow{font-stretch:125%;font-weight:700;font-size:clamp(10px,2.8vw,14px);letter-spacing:.23em;text-transform:uppercase;color:rgba(244,234,213,.8)}
 .entry{width:100%;max-width:360px;margin:auto 0}
 .lock{display:block;width:32px;height:32px;margin:0 auto 16px;color:var(--gold)}
-h1{font-family:"Yellowtail",cursive;font-weight:400;color:var(--gold);font-size:clamp(43px,10vw,57px);line-height:1.1;margin:0 0 18px}
+h1{font-weight:700;color:var(--gold);font-size:clamp(28px,7vw,36px);line-height:1.2;margin:0 0 18px}
 .intro{font-size:15px;line-height:1.65;color:rgba(244,234,213,.7);margin:0 auto 30px;max-width:310px;text-wrap:pretty}
 .intro strong{color:var(--cream);font-weight:700}
 form{text-align:left}

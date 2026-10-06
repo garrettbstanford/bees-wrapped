@@ -6,11 +6,29 @@
   "scripts": {
     "dev": "node server.js",
     "dev:lan": "node server.js --lan",
+    "dev:tote": "vite --config tote/vite.config.mjs --host 0.0.0.0",
+    "build:tote": "vite build --config tote/vite.config.mjs",
+    "preview:tote": "vite preview --config tote/vite.config.mjs --host 0.0.0.0",
+    "deploy:tote": "npm run build:tote && node tools/deploy-tote.mjs",
+    "inspect:tote": "node tools/inspect-tote.mjs",
     "deploy": "node tools/deploy.mjs",
+    "deploy:both": "npm run deploy && npm run deploy:tote",
     "configure:access": "node tools/configure-access.mjs",
-    "test": "node --test tools/access.test.mjs"
+    "test": "node --test tools/access.test.mjs tools/tote.test.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.3"
   }
 }

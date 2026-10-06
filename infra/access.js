@@ -2,7 +2,12 @@
 var crypto = require('crypto');
 var signingKey = '__SIGNING_KEY__';
 var passwordHash = '__PASSWORD_HASH__';
-var cookieName = '__Host-bees_access';
+var site = '__SITE__';
+var siteHost = site === 'tote' ? 'totebag.builtbyaether.com' : 'bees.builtbyaether.com';
+var gateUrl = site === 'tote' ? 'https://bees.builtbyaether.com/gate.html?site=tote' : '/gate.html';
+// Both proof-of-concept subdomains validate the same signed session.
+// __Host- cookies cannot have Domain; __Secure- supports the shared parent domain.
+var cookieName = '__Secure-bees_suite';
 var sessionSeconds = 86400;
 // Shared links: a signed-in viewer can mint a link to one slide. Anyone opening it gets a cookie that lets
 // their browser load that slide (the page and its styles, scripts and media), and nothing else in the story.
@@ -50,11 +55,13 @@ function response(status, body) {
 function handler(event) {
   var request = event.request;
   var now = Math.floor(Date.now() / 1000);
+  var host = request.headers.host;
+  if (!host || host.value !== siteHost) return response(403, '{"ok":false}');
 
   if (request.uri === '/__auth') {
+    if (site !== 'wrapped') return response(404, '{"ok":false}');
     if (request.method !== 'POST') return response(405, '{"ok":false}');
     var origin = request.headers.origin;
-    var host = request.headers.host;
     if (origin && (!host || origin.value !== 'https://' + host.value)) return response(403, '{"ok":false}');
     // Functions cannot read request bodies. The password travels in a header over HTTPS, never in a URL.
     var password = request.headers['x-bees-password'];
@@ -65,21 +72,30 @@ function handler(event) {
     var result = response(200, '{"ok":true}');
     result.cookies = {};
     result.cookies[cookieName] = {
-      value: expires + '.' + digest('session:' + expires),
-      attributes: 'Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=' + sessionSeconds
+      value: expires + '.' + digest('bees-suite:' + expires),
+      attributes: 'Domain=builtbyaether.com; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=' + sessionSeconds
     };
     return result;
   }
 
   if (request.method !== 'GET' && request.method !== 'HEAD') return response(405, '{"ok":false}');
-  if (publicPaths.indexOf(request.uri) !== -1) return request;
+  if (site === 'wrapped' && publicPaths.indexOf(request.uri) !== -1) return request;
 
   var cookie = request.cookies && request.cookies[cookieName];
   var session = false;
   if (cookie) {
     var parts = cookie.value.split('.');
     session = parts.length === 2 && /^\d{10}$/.test(parts[0]) && Number(parts[0]) > now &&
-      Number(parts[0]) <= now + sessionSeconds && equal(digest('session:' + parts[0]), parts[1]);
+      Number(parts[0]) <= now + sessionSeconds && equal(digest('bees-suite:' + parts[0]), parts[1]);
+  }
+
+  if (request.uri === '/__session') return response(200, session ? '{"ok":true}' : '{"ok":false}');
+
+  // Tote assets require the full password session. Wrapped slide shares never grant tote access.
+  if (site === 'tote') {
+    if (request.uri === '/gate.html') return redirect(gateUrl);
+    if (request.uri === '/__share') return response(404, '{"ok":false}');
+    return session ? request : redirect(gateUrl);
   }
 
   // Minting a shared link to one slide: signed-in viewers only
@@ -102,7 +118,7 @@ function handler(event) {
   // to the same link. c=1 marks the return trip, so a browser that drops cookies stops at the gate
   // instead of redirecting forever.
   if (home && offered && offered !== held && sharedSlide(offered, now)) {
-    if (query.c) return redirect('/gate.html');
+    if (query.c) return redirect(gateUrl);
     var trade = redirect('/?s=' + offered + '&c=1');
     trade.cookies = {};
     trade.cookies[shareCookieName] = {
@@ -118,5 +134,5 @@ function handler(event) {
     return redirect('/?s=' + held);
   }
 
-  return redirect('/gate.html');
+  return redirect(gateUrl);
 }

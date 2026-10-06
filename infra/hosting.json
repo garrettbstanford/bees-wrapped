@@ -11,7 +11,7 @@
       "Properties": {
         "Name": { "Fn::Sub": "${AWS::StackName}-access" },
         "AutoPublish": true,
-        "FunctionConfig": { "Comment": "Password gate for Maddie's Bees interview proof of concept", "Runtime": "cloudfront-js-2.0" },
+        "FunctionConfig": { "Comment": "Shared password access for Bees Wrapped and Tote", "Runtime": "cloudfront-js-2.0" },
         "FunctionCode": "BUILD_REQUIRED: tools/build-hosting.mjs inserts infra/access.js and private access configuration"
       }
     },

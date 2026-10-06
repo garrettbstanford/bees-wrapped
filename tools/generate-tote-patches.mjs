@@ -1,0 +1,15 @@
+import { Resvg } from '@resvg/resvg-js';
+import { writeFile } from 'node:fs/promises';
+const stitch = 'fill="none" stroke="#f7ead0" stroke-width="3" stroke-dasharray="5 5"';
+const designs = [
+  `<circle cx="128" cy="128" r="115" fill="#d8a539" stroke="#342f23" stroke-width="7"/><circle cx="128" cy="128" r="104" ${stitch}/><path d="M79 109c-18-40 35-38 49-4 14-34 67-36 49 4" fill="#f7ead0" stroke="#342f23" stroke-width="5"/><ellipse cx="128" cy="134" rx="41" ry="47" fill="#f7ead0" stroke="#342f23" stroke-width="5"/><path d="M93 117h70v16H88v-5m3 20h74v16H98" fill="#342f23"/><path d="m117 88-9-17m30 17 9-17" stroke="#342f23" stroke-width="5" stroke-linecap="round"/><text x="128" y="204" font-family="Arial" font-weight="bold" font-size="21" text-anchor="middle" fill="#342f23">HOME TEAM</text>`,
+  `<path d="m128 12 25 24 35-1 10 33 29 20-10 34 10 34-29 20-10 33-35-1-25 24-25-24-35 1-10-33-29-20 10-34-10-34 29-20 10-33 35 1Z" fill="#e9b54b" stroke="#fff0d2" stroke-width="7"/><circle cx="128" cy="122" r="78" fill="#f7e9ca" stroke="#314230" stroke-width="4"/><text x="128" y="110" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="45" fill="#314230">BEE</text><text x="128" y="151" text-anchor="middle" font-family="Georgia" font-style="italic" font-weight="bold" font-size="46" fill="#314230">kind.</text><path d="m113 178 15 9 15-9" fill="none" stroke="#314230" stroke-width="3"/>`,
+  `<path d="M34 29h188v145l-94 56-94-56Z" fill="#34483b" stroke="#ebdfbf" stroke-width="9"/><path d="M45 40h166v126l-83 50-83-50Z" ${stitch}/><path d="m51 125 49-62 31 39 23-29 52 67H51Z" fill="#f4e7c9"/><path d="m82 85 18-22 19 24-13-4-8 10-7-11Z" fill="#cca03e"/><text x="128" y="172" font-family="Arial" font-weight="bold" font-size="29" text-anchor="middle" fill="#f4e7c9">SALT LAKE</text><text x="128" y="198" font-family="Arial" font-size="14" letter-spacing="4" text-anchor="middle" fill="#e5b346">UTAH</text>`,
+  `<circle cx="128" cy="128" r="112" fill="#f7edda" stroke="#394336" stroke-width="7"/><circle cx="128" cy="128" r="102" fill="none" stroke="#c5b89a" stroke-width="2" stroke-dasharray="4 5"/><path d="M59 41c78 46 78 126 0 174M197 41c-78 46-78 126 0 174" fill="none" stroke="#b95438" stroke-width="5"/><path d="m71 57 18-4m-3 22 18-3m-8 23 19-3m-13 23 19 2m-20 19 17 6m-24 13 17 10m-29 10 15 11m87-129-18-4m3 22-18-3m8 23-19-3m13 23-19 2m20 19-17 6m24 13-17 10m29 10-15 11" stroke="#b95438" stroke-width="4" stroke-linecap="round"/><text x="128" y="124" text-anchor="middle" font-family="Georgia" font-weight="bold" font-style="italic" font-size="36" fill="#394336">play</text><text x="128" y="157" text-anchor="middle" font-family="Georgia" font-weight="bold" font-style="italic" font-size="36" fill="#394336">ball.</text>`,
+];
+for (const [index, content] of designs.entries()) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">${content}</svg>`;
+  const png = new Resvg(svg).render().asPng();
+  await writeFile(new URL(`../tote/public/patches/patch-${index + 1}.png`, import.meta.url), png);
+}
+console.log('Created four transparent placeholder PNG patches.');

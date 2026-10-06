@@ -4,7 +4,8 @@ Internal proof of concept: a story-style "Wrapped" recap of a fan's season. All 
 
 ## Run it
 
-Needs Node 20 or newer. There are no dependencies, so there's nothing to install.
+The Wrapped dev server needs Node 20 or newer and has no runtime dependencies.
+The separate tote studio uses Node 22.12+ and `npm ci`; see [tote/README.md](tote/README.md).
 
 ```sh
 npm run dev        # http://localhost:3000
@@ -14,6 +15,10 @@ npm run dev:lan    # same thing, also reachable from a phone on your Wi-Fi
 Saving any file in `public/` reloads the page. If port 3000 is taken, the server tries the next free port. Set `PORT=4000` to pick one.
 
 ## Live deployment
+
+The new 3D tote page has a separate app and deployment at `totebag.builtbyaether.com`.
+Run `npm run dev:tote` locally or `npm run deploy:tote` to publish it. Patch artwork,
+model replacement, and placement settings are documented in [tote/README.md](tote/README.md).
 
 Production: https://bees.builtbyaether.com
 
@@ -30,17 +35,39 @@ The default AWS profile is `aether-prod`; `AWS_PROFILE` can select another profi
 
 ### Password access
 
-The live site opens with a matching password screen introducing Maddie's proof of concept for her Bees job interview. A CloudFront viewer-request function (`infra/access.js`) checks every request before the cache. Only the gate HTML, CSS, JavaScript, and wordmark are public; the story and its media require a signed cookie. Successful access lasts one day. The cookie is Secure, HttpOnly, and SameSite=Lax. Passwords are sent over HTTPS in a request header, never a URL, and checked in AWS; no password or signing key is shipped in browser JavaScript.
+Both sites use one password screen at `https://bees.builtbyaether.com/gate.html`.
+The screen uses neutral copy and returns visitors straight to the site they opened.
+Tote requests include `?site=tote`; there is no page chooser or mention of Wrapped
+in the tote sign-in flow. Direct visits to either site accept the same session,
+so moving between the two links does not require a second password.
 
-The password digest and a random signing key live in the gitignored `.deploy/access.json`. `npm run deploy` requires this file and builds a private `.deploy/hosting.json` containing the edge function; deploy through that command, not the unbundled infrastructure template. AWS administrators can access the deployed function and its configuration.
+A CloudFront viewer-request function (`infra/access.js`) checks every request before
+the cache. Only the Wrapped gate HTML, CSS, JavaScript, and wordmark are public;
+both apps and their media require authentication. The signed `__Secure-bees_suite`
+cookie lasts one day and uses `Domain=builtbyaether.com`, Secure, HttpOnly, and
+SameSite=Lax so it works on both sibling subdomains. Only the two configured site
+hosts are accepted by the functions. Passwords are sent over HTTPS in a header,
+never a URL, and checked in AWS; no password or signing key is shipped in browser JavaScript.
 
-To change the password, set the `BEES_PASSWORD` environment variable, run `npm run configure:access`, then `npm run deploy`. Configuration generates a fresh signing key, so changing it invalidates existing sessions once deployed. Keep `.deploy/access.json` in a secure backup when moving to another machine, or configure a new password there. Run `npm test` to check access enforcement, cookie validation, and allowed routes.
+The password digest and random signing key live in the gitignored `.deploy/access.json`.
+Both deployment commands use this same file. `tools/build-hosting.mjs` builds private
+`.deploy/hosting.json` and `.deploy/tote-hosting.json` bundles with the appropriate
+site setting. Use the deployment commands, not the unbundled infrastructure templates.
+AWS administrators can access the deployed functions and their configuration.
+
+To change the password, set `BEES_PASSWORD`, run `npm run configure:access`, then
+`npm run deploy:both`. Configuration generates a fresh signing key, so changing it
+invalidates existing sessions once both functions are deployed. Keep `.deploy/access.json`
+in a secure backup when moving to another machine, or configure a new password there.
+Run `npm test` to check access on both sites, cookie validation, and shared-link isolation.
 
 ### Shared links
 
 The Share button shares a link to the slide being viewed. Signed-in viewers' pages ask the edge function for it (`/__share?slide=<key>`): a link of the form `/?s=<slide>.<expiry>.<signature>`, signed with the same key as sessions and valid for 30 days. Anyone who opens it, without the password, is redirected once to collect a `__Host-bees_share` cookie (Secure, HttpOnly, SameSite=Lax) and then sees only that slide, held in place, with a "Someone else's Wrapped" pill. Asking for the story without the link sends them back to it; they can't mint links; forged, edited, or expired links go to the password screen. The cookie also lets their browser load the site's styles, scripts, and media, because the slide needs them, so the page source is readable to a determined recipient. The story they're shown is locked to the one slide. Changing the password ends every shared link. Locally there's no edge function, so links are plain `/?s=<slide>`.
 
-Local `npm run dev` stays open for development; `/gate.html` previews the screen, but its authentication endpoint runs only on CloudFront. The public production URL has the enforced password gate.
+Local development servers stay open; `/gate.html` on the Wrapped dev server previews
+the screen, but its authentication endpoints run only on CloudFront. Both production
+sites enforce the password gate. Wrapped slide-share cookies never unlock the tote.
 
 ## Layout
 

@@ -12,4 +12,4 @@ mkdirSync(directory, { recursive: true, mode: 0o700 });
 const signingKey = randomBytes(32).toString('hex');
 const passwordHash = createHmac('sha256', signingKey).update('password:' + password).digest('hex');
 writeFileSync(directory + '/access.json', JSON.stringify({ signingKey, passwordHash }) + '\n', { mode: 0o600 });
-console.log('Access configuration saved privately. Run npm run deploy to apply it. Existing sessions will expire when the new configuration is deployed.');
+console.log('Access configuration saved privately. Run npm run deploy:both to apply it to both sites. Existing sessions will expire when the new configuration is deployed.');
